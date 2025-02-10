@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-Cyber</title>
+    <style>
+        body {
+            background-color: black;
+            color: limegreen;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        #chatContainer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 2px solid limegreen;
+            border-radius: 10px;
+        }
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid limegreen;
+            padding: 10px;
+        }
+        #messageInput {
+            width: calc(100% - 80px);
+            padding: 5px;
+            background: black;
+            color: limegreen;
+            border: 1px solid limegreen;
+        }
+        button {
+            padding: 5px;
+            background: limegreen;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <div id="chatContainer">
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Écrire un message...">
+        <button onclick="sendMessage()">Envoyer</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array.from({ length: columns }).fill(0);
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'limegreen';
+            ctx.font = fontSize + 'px monospace';
+            drops.forEach((y, i) => {
+                const text = characters[Math.floor(Math.random() * characters.length)];
+                ctx.fillText(text, i * fontSize, y * fontSize);
+                drops[i] = y * fontSize > canvas.height && Math.random() > 0.95 ? 0 : y + 1;
+            });
+        }
+        setInterval(drawMatrix, 50);
+
+        const messagesDiv = document.getElementById("messages");
+        const input = document.getElementById("messageInput");
+        let username = localStorage.getItem("username");
+        if (!username) {
+            username = prompt("Entrez votre pseudo:");
+            localStorage.setItem("username", username);
+        }
+
+        function sendMessage() {
+            const message = input.value;
+            if (message.trim() !== "") {
+                const msgElement = document.createElement("div");
+                msgElement.textContent = `${username}: ${message}`;
+                messagesDiv.appendChild(msgElement);
+                input.value = "";
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
